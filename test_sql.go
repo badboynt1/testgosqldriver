@@ -6,28 +6,19 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-func test1() {
-	dsn := "dump:111@tcp(192.168.157.128:6001)/mo?charset=utf8mb4"
+const dsn = "dump:111@tcp(192.168.157.128:6001)/mo?charset=utf8mb4"
+const driverName = "mysql"
 
-	db, err := sql.Open("mysql", dsn)
+func test1() {
+	db, err := sql.Open(driverName, dsn)
 	if err != nil {
 		panic(err.Error())
 	}
 	defer db.Close()
 
-	err = db.Ping()
 	if err != nil {
 		panic(err.Error())
 	}
-
-	db.SetConnMaxIdleTime(1)
-	db.SetConnMaxLifetime(1)
-
-	db.SetMaxIdleConns(1)
-	db.SetMaxOpenConns(1)
-
-	stats := db.Stats()
-	fmt.Printf("dbstats: \nMaxOpenConnections %v\nIdle %v\nOpenConnections %v\nInUse %v\nWaitCount %v\nWaitDuration %v\nMaxIdleClosed %v\nMaxIdleTimeClosed %v\nMaxLifetimeClosed %v\n\n", stats.MaxOpenConnections, stats.Idle, stats.OpenConnections, stats.InUse, stats.WaitCount, stats.WaitDuration, stats.MaxIdleClosed, stats.MaxIdleTimeClosed, stats.MaxLifetimeClosed)
 
 	// Prepare statement for drop table
 	stmtDrop, err := db.Prepare("drop database if exists gosqldriver")
@@ -151,10 +142,32 @@ func test1() {
 		return
 	}
 
-	fmt.Println("test success!")
+}
 
+func test2() {
+
+	db, err := sql.Open(driverName, dsn)
+	if err != nil {
+		panic(err.Error())
+	}
+	defer db.Close()
+
+	err = db.Ping()
+	if err != nil {
+		panic(err.Error())
+	}
+	db.SetConnMaxIdleTime(100)
+	db.SetConnMaxLifetime(100)
+
+	db.SetMaxIdleConns(100)
+	db.SetMaxOpenConns(100)
+
+	stats := db.Stats()
+	fmt.Printf("dbstats: \nMaxOpenConnections %v\nIdle %v\nOpenConnections %v\nInUse %v\nWaitCount %v\nWaitDuration %v\nMaxIdleClosed %v\nMaxIdleTimeClosed %v\nMaxLifetimeClosed %v\n\n", stats.MaxOpenConnections, stats.Idle, stats.OpenConnections, stats.InUse, stats.WaitCount, stats.WaitDuration, stats.MaxIdleClosed, stats.MaxIdleTimeClosed, stats.MaxLifetimeClosed)
 }
 
 func main() {
 	test1()
+	test2()
+	fmt.Println("test success!")
 }

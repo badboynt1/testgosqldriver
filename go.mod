@@ -1,4 +1,4 @@
-module github.com/badboynt/testgosqldriver
+module github.com/badboynt1/testgosqldriver
 go 1.19
 
 require (
